@@ -1,5 +1,5 @@
-# Project Name: MDRC Sponsor Email Generator
-![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green.svg) [![Sponsor Email Generator Build and Unit Tests](https://github.com/RIT-MDRC/SponsorEmailGen/actions/workflows/dotnet-desktop.yml/badge.svg)](https://github.com/RIT-MDRC/SponsorEmailGen/actions/workflows/dotnet-desktop.yml)
+# Project Name: MDRC Attendance Tracker
+![Maintenance](https://img.shields.io/badge/Maintained%3F-Yes-green.svg)
 
 ## Developers(s)
 - Clinten Hopkins (cmh3586@rit.edu)
@@ -8,7 +8,7 @@
 - Clinten Hopkins (cmh3586@rit.edu)
 
 ## Description
-An tool to generate emails using a provided template.
+An tool to track MDRC attendance to provide swipe to new mebers.
 
 ## How To Use
 
