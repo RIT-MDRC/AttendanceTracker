@@ -1,0 +1,112 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+button.rit {
+    margin: 8px 0;
+    background-color: #C75300 !important;
+    background: #C75300 url("https://www.rit.edu/marketing/drupal8base/sites/all/themes/uwbase/rit_bootstrap_2019/images/cta/bg-rit-orange.gif") repeat;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+.cancelbtn {
+    width: auto;
+    padding: 10px 18px;
+    background-color: #f44336;
+}
+
+.imgcontainer {
+    text-align: center;
+    margin: 24px 0 12px 0;
+}
+
+img.avatar {
+    width: 40%;
+    border-radius: 50%;
+}
+
+.container {
+    padding: 16px;
+}
+
+span.psw {
+    float: right;
+    padding-top: 16px;
+}
+
+/* Change styles for span and cancel button on extra small screens */
+@media screen and (max-width: 300px) {
+    span.psw {
+        display: block;
+        float: none;
+    }
+
+    .cancelbtn {
+        width: 100%;
+    }
+}
+
+.validationText {
+    color: red;
+}
+
+.alert {
+    padding: 20px;
+    background-color: #ff9800;
+    color: white;
+}
+
+.alert.warning {
+    background-color: #ff9800;
+}
+
+.alert.success {
+    background-color: #04AA6D;
+}
+
+.alert.error {
+    background-color: #f44336;
+}
+
+.closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.closebtn:hover {
+    color: black;
+}
+
+.dt-buttons.btn-group {
+    flex-wrap: nowrap !important;
+}
+
+.copy-window {
+    height: 200px;
+}

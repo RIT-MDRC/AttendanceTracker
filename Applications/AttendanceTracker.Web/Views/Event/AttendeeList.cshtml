@@ -1,0 +1,92 @@
+﻿@model MDRC.Web.ViewModels.AttendeeListViewModel
+
+@{
+    ViewData["Title"] = "Attendees - Event Management";
+
+}
+
+<div>
+    <h1 class="display-6">Attendees</h1>
+
+    <table id="EventTable" class="display table table-striped table-hover" style="width:100%">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Swipe Date</th>
+            </tr>
+        </thead>
+    </table>
+
+</div>
+
+@section Scripts
+    {
+    <script>
+        var d = DateTime.fromISO('2009-06-15T13:45:30.0000000-07:00', { setZone: true });
+        console.log(d);
+
+        $(document).ready(function () {
+            $('#EventTable').dataTable({
+                "dom": "<'row'<'col-sm-12 col-md-6'B><'col-sm-12 col-md-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-6'l><'col-sm-6'p>>",
+                "ajax": {
+                    "url": "@Url.Action("GetAttendeeList", "Event", new { eventId = Model.EventId })",
+                    "contentType": "application/json",
+                    "type": "GET"
+                },
+                "columns": [
+                    { data: 'fullName' },
+                    { data: 'swipeDate' },
+                ],
+                "columnDefs": [
+                    {
+                        targets: [1],
+                        render: DataTable.render.datetime('ccc, MMM d, yyyy h:mm a')
+                    }
+                ], 
+                "select": 'single',
+                "buttons": [
+                    {
+                        text: 'Reload',
+                        action: function (e, dt, node, config) {
+                            dt.ajax.reload();
+                        }
+                    },
+                    "spacer",
+                    {
+                        text: 'Create',
+                        action: function (e, dt, button, config) {
+                            window.location.href = "@Url.Action("ManualEntry", "Swipe", new { eventId = Model.EventId })";
+                        }
+                    },
+                    "spacer",
+                    {
+                        extend: 'selected',
+                        text: 'Delete',
+                        action: function (e, dt, button, config) {
+                            let selectedEvents = dt.rows({ selected: true }).data();
+                            if (selectedEvents > 1) {
+                                alert("Error: More than one attendance record was selected. Please select one row at a time.")
+                                return;
+                            }
+                            let selectedEvent = selectedEvents[0];
+                            if (confirm("You are about to delete the attendance record for: " + selectedEvent.fullName + ". To continue press \"OK\".")) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("DeactivateAttendanceRecord", "Event")',
+                                    data: {
+                                        eventId: selectedEvent.eventId,
+                                        universityId: selectedEvent.universityId,
+                                    }
+                                }).done(function (r) {
+                                    dt.ajax.reload();
+                                });
+                            }
+                        }
+                    },
+                ],
+            });
+        });
+    </script>
+}

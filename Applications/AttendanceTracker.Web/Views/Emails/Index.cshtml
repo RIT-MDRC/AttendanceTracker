@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Email Generation";
+}
+
+<div>
+    <h1 class="display-6">Select an email template to use or edit.</h1>
+
+    <table id="EmailsTable" class="display table table-striped table-hover" style="width:100%">
+        <thead>
+            <tr>
+                <th>Template Name</th>
+            </tr>
+        </thead>
+    </table>
+
+</div>
+
+@section Scripts
+    {
+    <script>
+
+        $(document).ready(function () {
+            $('#EmailsTable').dataTable({
+                "dom": "<'row'<'col-sm-12 col-md-6'B><'col-sm-12 col-md-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-6'l><'col-sm-6'p>>",
+                "ajax": {
+                    "url": "@Url.Action("GetTemplateList", "Emails")",
+                    "contentType": "application/json",
+                    "type": "GET"
+                },
+                "columns": [
+                    { data: 'name' }
+                ],
+                "select": 'single',
+                "buttons": [
+                    {
+                        text: 'Reload',
+                        action: function (e, dt, node, config) {
+                            dt.ajax.reload();
+                        }
+                    },
+                    @*"spacer",
+                    {
+                        text: 'Create',
+                        action: function (e, dt, button, config) {
+                            window.location.href = "@Url.Action("CreateNewEvent", "Event")";
+                        }
+                    },*@
+                    "spacer",
+                    {
+                        extend: 'selected',
+                        text: 'Edit',
+                        action: function (e, dt, button, config) {
+                            let selectedEvent = GetSelectedRow(dt);
+                            window.location.href = '@Url.Action("EditEmailTemplate", "Emails", new { emailTemplateId = "TEMPLATE_ID"})'.replace("TEMPLATE_ID", selectedEvent.emailTemplateId);
+                        }
+                    },
+                    "spacer",
+                    {
+                        extend: 'selected',
+                        text: 'Generate',
+                        action: function (e, dt, button, config) {
+                            let selectedEvent = GetSelectedRow(dt);
+                            window.location.href = '@Url.Action("GenerateEmail", "Emails", new { emailTemplateId = "TEMPLATE_ID"})'.replace("TEMPLATE_ID", selectedEvent.emailTemplateId);
+                        }
+                    },
+                    @*"spacer",
+                    {
+                        extend: 'selected',
+                        text: 'Delete',
+                        action: function (e, dt, button, config) {
+                            let selectedEvent = GetSelectedRow(dt);
+                            if (confirm("You are about to delete the event: " + selectedEvent.eventName + ". To continue press \"OK\".")) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("DeactivateEvent", "Event")',
+                                    data: {
+                                        eventId: selectedEvent.eventId,
+                                    }
+                                }).done(function (r) {
+                                    dt.ajax.reload();
+
+                                });
+                            }
+                        }
+                    },*@
+                ],
+            });
+        });
+    </script>
+}

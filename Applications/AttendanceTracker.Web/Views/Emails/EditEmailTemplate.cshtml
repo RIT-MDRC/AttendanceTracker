@@ -1,0 +1,65 @@
+﻿@model MDRC.Web.ViewModels.EditEmailTemplateViewModel
+@{
+    ViewData["Title"] = "Edit Email Template";
+}
+
+<div>
+    <h1 class="display-6">Edit Email Template</h1>
+    <form id="EditEmailTemplateForm">
+        @Html.HiddenFor(_ => _.EmailTemplateId)
+        <div class="row">
+            <div class="col-md-2">
+                @Html.LabelFor(_ => _.Name)
+            </div>
+            <div class="col-md-4">
+                @Html.TextBoxFor(_ => _.Name, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                @Html.LabelFor(_ => _.TemplateText)
+            </div>
+            <div class="col-12">
+                <textarea id="summernote" name="TemplateText">@Model.TemplateText</textarea>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <button class="form-control rit" type="submit">Save</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts
+    {
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#summernote').summernote();
+
+            $("#EditEmailTemplateForm").submit(function (e) {
+
+                e.preventDefault(); // avoid to execute the actual submit of the form.
+
+                //if (!validateForm())
+                //    return;
+
+                var form = $(this);
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveEmailTemplate", "Emails")',
+                    data: form.serialize(), // serializes the form's elements.
+                    success: function (data) {
+                        window.location = data.redirect;
+                    },
+                    error: function () {
+                        alert('Error occured');
+                    }
+                });
+            });
+        });
+    </script>
+}

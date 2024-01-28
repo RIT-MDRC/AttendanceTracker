@@ -1,0 +1,182 @@
+﻿@model MDRC.Web.ViewModels.ManualEntryViewModel
+@{
+    ViewData["Title"] = "Manual Swipe Entry";
+
+}
+
+<div>
+    <h1 class="display-6">Enter A Missed Attendance Record</h1>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert success">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            <strong>Success!</strong> @Model.SuccessMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.WarningMessage))
+    {
+        <div class="alert warning">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            <strong>Warning!</strong> @Model.WarningMessage
+        </div>
+    }
+
+    <form id="CreateManualSwipeForm">
+        @Html.HiddenFor(_ => _.RequesterUniversityId)
+        <div class="row">
+            <div class="col-sm-6">
+                @Html.LabelFor(_ => _.UniversityId)
+                @Html.DropDownListFor(model => model.UniversityId, (IEnumerable<SelectListItem>) Model.MemberList, "Select...", new { @class = "form-control", @id = "MemberDropDown" })
+                <div id="SelectedMemberValidate" class="validationText">A member is required</div>
+            </div>
+            <div class="col-sm-6">
+                @Html.LabelFor(_ => _.EventId)
+                @Html.DropDownListFor(model => model.EventId, (IEnumerable<SelectListItem>) Model.EventList, "Select...", new { @class = "form-control", @id = "EventDropDown" })
+                <div id="SelectedEventValidate" class="validationText">An event is required</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                @Html.LabelFor(_ => _.SwipeDate)
+                <div class="input-group log-event"
+                     id="SwipeTimePicker"
+                     data-td-target-input="nearest"
+                     data-td-target-toggle="nearest">
+                    <input id="SwipeTimePickerInput"
+                           type="text"
+                           class="form-control"
+                           name="SwipeDate"
+                           data-td-target="#SwipeTimePicker" />
+                    <span class="input-group-text"
+                          data-td-target="#SwipeTimePicker"
+                          data-td-toggle="datetimepicker">
+                        <span class="fa-solid fa-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <div id="SwipeTimePickerValidate" class="validationText">An attendance time is required</div>
+            </div>
+        </div>
+
+        <button class="form-control rit" type="submit">Submit</button>
+    </form>
+
+</div>
+
+@section Scripts
+    {
+    <script>
+        function validateForm() {
+            var valid = true;
+
+            var eventGuid = $("#EventDropDown").val();
+            if (!eventGuid) {
+                $("#SelectedEventValidate").show();
+                valid = false;
+            }
+            var memberId = $("#MemberDropDown").val();
+            if (!memberId) {
+                $("#SelectedMemberValidate").show();
+                valid = false;
+            }
+            var swipeTimePickerStr = $("#SwipeTimePickerInput").val();
+            if (!swipeTimePickerStr) {
+                $("#SwipeTimePickerValidate").show();
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        $(document).ready(function () {
+            let startDateString = decodeHtml('@DateTimeOffset.Now');
+            let startDate = new Date(startDateString);
+            const SwipeTimePicker = new tempusDominus.TempusDominus(document.getElementById('SwipeTimePicker'),
+                {
+                    defaultDate: startDate
+                });
+
+            const eventDropDown = $('#EventDropDown');
+
+            eventDropDown.on("change", function () {
+                $("#SelectedEventValidate").hide();
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("GetEventTimes", "Swipe")',
+                    contentType: 'application/json; charset=utf-8',
+                    data: {
+                        EventId: eventDropDown.val()
+                    },
+                    success: function (data) {
+
+                        let startDate = new Date(data.startDate);
+                        let endDate = new Date(data.endDate);
+
+                        SwipeTimePicker.dates.clear();
+
+                        SwipeTimePicker.updateOptions({
+                            defaultDate: startDate,
+                            restrictions: {
+                                minDate: startDate,
+                                maxDate: endDate,
+                            },
+                        });
+                    },
+                    error: function () {
+                        alert('Error occured');
+                    }
+                });
+            });
+
+            const memberDropDown = $('#MemberDropDown');
+
+            memberDropDown.on("change", function () {
+                $("#SelectedMemberValidate").hide();
+            });
+
+            SwipeTimePicker.subscribe(tempusDominus.Namespace.events.change, (e) => {
+                $("#SwipeTimePickerValidate").hide();
+            });
+
+            $("#SelectedMemberValidate").hide();
+            $("#SelectedEventValidate").hide();
+            $("#SwipeTimePickerValidate").hide();
+
+            $("#CreateManualSwipeForm").submit(function (e) {
+
+                e.preventDefault();
+
+                if (!validateForm())
+                    return;
+
+                var form = $(this);
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("CreateManualEntry", "Swipe")',
+                    data: form.serialize(), // serializes the form's elements.
+                    success: function (data) {
+                        window.location = data.redirect;
+                    },
+                    error: function () {
+                        alert('Error occured');
+                    }
+                });
+            });
+        });
+    </script>
+    @if(Model.EventId.HasValue)
+    {
+        <script>
+            $(document).ready(function () {
+                const eventDropDown = $('#EventDropDown');
+                eventDropDown.trigger('change');
+            });
+        </script>
+    }
+}

@@ -1,0 +1,101 @@
+﻿@model MDRC.Web.ViewModels.CreateAccountViewModel
+@{
+    ViewData["Title"] = "Create Account - " + Model.FullName;
+}
+
+<div>
+    <h1 class="display-6">Hello @Model.FullName</h1>
+    <h2 class="display-6">Please create an account using the form below.</h2>
+    <form action="javascript:handleSubmit()" onsubmit="return validateForm()">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <label for="uname"><b>Username</b></label>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <input id="usernameField" type="text" placeholder="Enter Username" name="uname" required>
+                <div id="usernameFieldValidate" class="validationText">Username is required</div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <label for="psw">Password</></label>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <input id="passwordField" type="password" placeholder="Enter Password" name="psw" required>
+                <div id="passwordFieldValidate" class="validationText">Password is required</div>
+                <div id="passwordFieldValidateLength" class="validationText">Your password must be at least 12 characters</div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <button class="form-control rit" type="submit">Create Account</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function validateForm() {
+        var delayFail = false;
+        var passwordStr = $("#passwordField").val();
+        var usernameStr = $("#usernameField").val();
+        if (!passwordStr) {
+            $("#passwordFieldValidate").show();
+            $('#passwordField').on('input', function () {
+                $("#passwordFieldValidate").hide();
+            });
+            delayFail = true;
+        }
+        if (!usernameStr) {
+            $("#usernameFieldValidate").show();
+            $('#usernameField').on('input', function () {
+                $("#usernameFieldValidate").hide();
+            });
+            delayFail = true;
+        }
+
+        if (delayFail)
+            return false;
+
+        if (passwordStr.length < 12) {
+            $("#passwordFieldValidateLength").show();
+            $('#passwordField').on('input', function () {
+                $("#passwordFieldValidateLength").hide();
+            }); 
+            return false;
+        }
+
+        return true;
+    }
+
+    function handleSubmit() {
+        var accountInfo = {
+            UniversityId: @Model.UniversityId,
+            Username: $("#usernameField").val(),
+            Password: CryptoJS.MD5($("#passwordField").val()).toString()
+        };
+
+        $.ajax({
+            method: 'POST',
+            url: '@Url.Action("CreateNewAccount", "Account")',
+            data: JSON.stringify(accountInfo),
+            contentType: 'application/json; charset=utf-8',
+            success: function (data) {
+                window.location = data.redirect;
+            },
+            error: function () {
+                alert('Error occured');
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $("#passwordFieldValidateLength").hide();
+        $("#usernameFieldValidate").hide();
+        $("#passwordFieldValidate").hide();
+    });
+</script>

@@ -1,0 +1,44 @@
+﻿@model MDRC.Web.ViewModels.GeneratedEmailContentViewModel
+@{
+    ViewData["Title"] = "Generated Email";
+}
+
+<div>
+    <div class="row">
+        <div class="col-6">
+            <h1 class="display-6">Generated Email Text:</h1>
+        </div>
+        <div class="col-2 ms-auto">
+            <button class="form-control rit" onclick="copyElementText($('#GenerateEmailPreviewText'))">Copy text</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            @Html.TextAreaFor(_ => _.EmailContent, new { @class = "form-control copy-window", @readonly = "True", @id = "GenerateEmailPreviewText" })
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-6">
+            <h1 class="display-6">Email Preview:</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <iframe id="GenerateEmailPreviewWindow" class="form-control" style="height:600px"></iframe>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            let emailPreview = decodeURIComponent('@Model.EmailContent');
+            $('#GenerateEmailPreviewText').val(emailPreview);
+
+            document.getElementById('GenerateEmailPreviewWindow').contentWindow.document.body.innerHTML = emailPreview;
+        });
+
+        
+    </script>
+}

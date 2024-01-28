@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "Event Management";
+
+}
+
+<div>
+    <h1 class="display-6">Events</h1>
+
+    <table id="EventTable" class="display table table-striped table-hover" style="width:100%">
+        <thead>
+            <tr>
+                <th data-priority="1">Event Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Grants Swipe</th>
+            </tr>
+        </thead>
+    </table>
+
+</div>
+
+@section Scripts
+    {
+    <script>
+        $(document).ready(function () {
+            $('#EventTable').dataTable({
+                "dom": "<'row'<'col-sm-12 col-md-6'B><'col-sm-12 col-md-6'f>>" +
+                    "<'row'<'col-sm-12'tr>>" +
+                    "<'row'<'col-sm-12 col-md-6'l><'col-sm-6'p>>",
+                "ajax": {
+                    "url": "@Url.Action("GetEventList", "Event")",
+                    "contentType": "application/json",
+                    "type": "GET"
+                },
+                "columns": [
+                    { data: 'eventName' },
+                    { data: 'startDate' },
+                    { data: 'endDate' },
+                    { data: 'isSwipeGranting' }
+                ],
+                "responsive": true,
+                "columnDefs": [
+                    {
+                        targets: [1, 2],
+                        render: DataTable.render.datetime('ccc, MMM d, yyyy h:mm a')
+                    }
+                ],
+                "order": [[1, 'desc']], 
+                "select": 'single',
+                "buttons": [
+                    {
+                        text: 'Reload',
+                        action: function (e, dt, node, config) {
+                            dt.ajax.reload();
+                        }
+                    },
+                    "spacer",
+                    {
+                        text: 'Create',
+                        action: function (e, dt, button, config) {
+                            window.location.href = "@Url.Action("CreateNewEvent", "Event")";
+                        }
+                    },
+                    "spacer",
+                    {
+                        extend: 'selected',
+                        text: 'Attendees',
+                        action: function (e, dt, button, config) {
+                            let selectedEvents = dt.rows({ selected: true }).data();
+                            if (selectedEvents > 1) {
+                                alert("Error: More than one event was selected. Please select one row at a time.")
+                                return;
+                            }
+                            let selectedEvent = selectedEvents[0];
+                            window.location.href = '@Url.Action("AttendeeList", "Event", new { eventId = "EVENT_ID"})'.replace("EVENT_ID", selectedEvent.eventId);
+                        }
+                    },
+                    "spacer",
+                    {
+                        extend: 'selected',
+                        text: 'Edit',
+                        action: function (e, dt, button, config) {
+                            let selectedEvents = dt.rows({ selected: true }).data();
+                            if (selectedEvents > 1) {
+                                alert("Error: More than one event was selected. Please select one row at a time.")
+                                return;
+                            }
+                            let selectedEvent = selectedEvents[0];
+                            window.location.href = '@Url.Action("UpdateEvent", "Event", new { eventId = "EVENT_ID"})'.replace("EVENT_ID", selectedEvent.eventId);
+                        }
+                    },
+                    "spacer",
+                    {
+                        extend: 'selected',
+                        text: 'Delete',
+                        action: function (e, dt, button, config) {
+                            let selectedEvents = dt.rows({ selected: true }).data();
+                            if (selectedEvents > 1) {
+                                alert("Error: More than one event was selected. Please select one row at a time.")
+                                return;
+                            }
+                            let selectedEvent = selectedEvents[0];
+                            if (confirm("You are about to delete the event: " + selectedEvent.eventName + ". To continue press \"OK\".")) {
+                                $.ajax({
+                                    type: "POST",
+                                    url: '@Url.Action("DeactivateEvent", "Event")',
+                                    data: {
+                                        eventId: selectedEvent.eventId,
+                                    }
+                                }).done(function (r) {
+                                    dt.ajax.reload();
+
+                                });
+                            }
+                        }
+                    },
+                ],
+            });
+        });
+    </script>
+}

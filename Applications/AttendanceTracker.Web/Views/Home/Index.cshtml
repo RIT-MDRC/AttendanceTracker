@@ -1,0 +1,17 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@using System.Security.Claims
+@{
+    ViewData["Title"] = "MDRC Internal Website";
+}
+
+<div class="text-center">
+    @if (HttpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Hello @HttpContextAccessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.GivenName)?.Value!</h1>
+            </div>
+        </div>
+    }
+    <h1 class="display-6">MDRC Internal Website</h1>
+</div>

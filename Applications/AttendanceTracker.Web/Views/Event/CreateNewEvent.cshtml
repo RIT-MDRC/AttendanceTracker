@@ -1,0 +1,232 @@
+﻿@model MDRC.Web.ViewModels.AddUpdateEventViewModel
+@{
+    ViewData["Title"] = "Create New Event";
+
+}
+
+<div>
+    <h1 class="display-6">Create a new event</h1>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert success">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            <strong>Success!</strong> @Model.SuccessMessage
+        </div>
+    }
+
+    <form id="NewEventForm">
+        @Html.HiddenFor(_ => _.EventId)
+        <div class="row">
+            <div class="col-sm-12">
+                @Html.LabelFor(_ => _.EventName)
+                @Html.TextBoxFor(_ => _.EventName, new { @class="form-control" } )
+                <div id="eventNameFieldValidate" class="validationText">An event name is required</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                @Html.LabelFor(_ => _.StartDate)
+                <div class="input-group log-event"
+                        id="StartDatePicker"
+                        data-td-target-input="nearest"
+                        data-td-target-toggle="nearest">
+                    <input id="StartDatePickerInput"
+                            type="text"
+                            class="form-control"
+                            name="StartDate"
+                            data-td-target="#StartDatePicker" />
+                    <span class="input-group-text"
+                            data-td-target="#StartDatePicker"
+                            data-td-toggle="datetimepicker">
+                        <span class="fa-solid fa-calendar"></span>
+                    </span>
+                </div>
+                <div id="StartDatePickerValidate" class="validationText">A start date/time is required</div>
+                <div id="StartDatePickerValidateFormat" class="validationText">Please use the button to select your start date</div>
+             </div>
+            <div class="col-md-6">
+                @Html.LabelFor(_ => _.EndDate)
+                <div class="input-group log-event"
+                        id="EndDatePicker"
+                        data-td-target-input="nearest"
+                        data-td-target-toggle="nearest">
+                    <input id="EndDatePickerInput"
+                            type="text"
+                            class="form-control"
+                            data-td-target="#EndDatePicker"
+                            name="EndDate" />
+                    <span class="input-group-text"
+                            data-td-target="#EndDatePicker"
+                            data-td-toggle="datetimepicker">
+                        <span class="fa-solid fa-calendar"></span>
+                    </span>
+                </div>
+                <div id="EndDatePickerValidate" class="validationText">An end date/time is required</div>
+                <div id="EndDatePickerValidateTime" class="validationText">The end date/time cannot be before the start date/time</div>
+                <div id="EndDatePickerValidateFormat" class="validationText">Please use the button to select your end date</div>
+            </div>
+        </div>
+
+        @Html.CheckBoxFor(_ => _.IsSwipeGranting)
+        @Html.LabelFor(_ => _.IsSwipeGranting)
+
+        <button class="form-control rit" type="submit">Submit</button>
+    </form>
+
+</div>
+
+@section Scripts
+    {
+    <script>
+        function validateForm(form) {
+            var valid = true;
+
+            var eventNameStr = $("#EventName").val();
+            if (!eventNameStr) {
+                $("#eventNameFieldValidate").show();
+                $('#EventName').on('input', function () {
+                    $("#eventNameFieldValidate").hide();
+                });
+                valid = false;
+            }
+
+            var startDateStr = $("#StartDatePickerInput").val();
+            if (!startDateStr) {
+                $("#StartDatePickerValidate").show();
+                valid = false;
+            }
+
+            var endDateStr = $("#EndDatePickerInput").val();
+            if (!endDateStr) {
+                $("#EndDatePickerValidate").show();
+                valid = false;
+            }
+
+            if (!valid)
+                return false;
+
+            let startDate = DateTime.fromFormat(getElementValueByName(form, "StartDate"), "MM/dd/yyyy h:mm a");
+
+            if (!startDate.isValid) {
+                $("#StartDatePickerValidateFormat").show();
+                valid = false;
+            }
+
+            let endDate = DateTime.fromFormat(getElementValueByName(form, "EndDate"), "MM/dd/yyyy h:mm a");
+
+            if (!endDate.isValid) {
+                $("#EndDatePickerValidateFormat").show();
+                valid = false;
+            }
+
+            if (endDate < startDate) {
+                $("#EndDatePickerValidateTime").show();
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        $(document).ready(function () {
+            $("#eventNameFieldValidate").hide();
+            $("#StartDatePickerValidate").hide();
+            $("#StartDatePickerValidateFormat").hide();
+            $("#EndDatePickerValidate").hide();
+            $("#EndDatePickerValidateTime").hide();
+            $("#EndDatePickerValidateFormat").hide();
+
+            let startDateString = decodeURIComponent('@Model.StartDateString');
+            let startDate = new Date(startDateString);
+
+            var endDate;
+
+            let endDateString = decodeURIComponent('@Model.EndDateString');
+            if (endDateString) {
+                endDate = new Date(endDateString);
+            }
+
+
+            const StartDatePicker = new tempusDominus.TempusDominus(document.getElementById('StartDatePicker'),
+                {
+                    useCurrent: false,
+                    defaultDate: startDate
+                });
+            const EndDatePicker = new tempusDominus.TempusDominus(document.getElementById('EndDatePicker'),
+                {
+                    useCurrent: false,
+                    defaultDate: endDate,
+                    restrictions: {
+                        minDate: startDate,
+                    },
+                });
+
+            //using event listeners
+            StartDatePicker.subscribe(tempusDominus.Namespace.events.change, (e) => {
+                EndDatePicker.dates.clear()
+                EndDatePicker.updateOptions({
+                    defaultDate: e.date.addHours(2),
+                    restrictions: {
+                        minDate: e.date,
+                    },
+                });
+                $("#StartDatePickerValidate").hide();
+                $("#StartDatePickerValidateFormat").hide();
+            });
+
+            //using subscribe method
+            EndDatePicker.subscribe(tempusDominus.Namespace.events.change, (e) => {
+                StartDatePicker.updateOptions({
+                    restrictions: {
+                        maxDate: e.date,
+                    },
+                });
+                $("#EndDatePickerValidate").hide();
+                $("#EndDatePickerValidateTime").hide();
+                $("#EndDatePickerValidateFormat").hide();
+            });
+
+            $("#NewEventForm").submit(function (e) {
+
+                e.preventDefault(); // avoid to execute the actual submit of the form.
+
+                let form = $(this).serializeArray();
+
+                if (!validateForm(form))
+                    return;
+
+                form = changeElementByName(form, "StartDate", DateTime.fromFormat(getElementValueByName(form, "StartDate"), "MM/dd/yyyy h:mm a").toISO());
+                form = changeElementByName(form, "EndDate", DateTime.fromFormat(getElementValueByName(form, "EndDate"), "MM/dd/yyyy h:mm a").toISO());
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveEvent", "Event")',
+                    data: form, // serializes the form's elements.
+                    success: function (data) {
+                        window.location = data.redirect;
+                    },
+                    error: function () {
+                        alert('Error occured');
+                    }
+                });
+            });
+        });
+
+        function changeElementByName(formArray, nameString, newValue) {
+            for (const formElement of formArray) {
+                if (formElement.name == nameString) {
+                    formElement.value = newValue;
+                }
+            }
+            return formArray;
+        }
+
+        function getElementValueByName(formArray, nameString) {
+            for (const formElement of formArray) {
+                if (formElement.name == nameString) {
+                    return formElement.value;
+                }
+            }
+        }
+    </script>
+}

@@ -1,0 +1,88 @@
+﻿@model MDRC.Web.ViewModels.ErrorMesssageViewModel
+@{
+    ViewData["Title"] = "Log In";
+}
+
+<div>
+    <h1 class="display-6">Log In</h1>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert success">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            <strong>Success!</strong> @Model.SuccessMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.WarningMessage))
+    {
+        <div class="alert">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            <strong>Warning!</strong> @Model.WarningMessage
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert error">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+            <strong>Error!</strong> @Model.ErrorMessage
+        </div>
+    }
+
+    <form action="javascript:handleSubmit()">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <label for="uname">Username</label>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <input class="form-control" id="usernameField" type="text" placeholder="Enter Username" name="uname" required>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <label for="psw">Password</></label>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <input class="form-control" id="passwordField" type="password" placeholder="Enter Password" name="psw" required>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <button class="form-control rit" type="submit">Login</button>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+            <label>
+                <input id="rememberMeCheckbox" type="checkbox" /> Remember me
+                </label>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<script>
+    function handleSubmit() {
+        var signInRequest = {
+            Username: $("#usernameField").val(),
+            PasswordHash: CryptoJS.MD5($("#passwordField").val()).toString(),
+            RememberMe: $("#rememberMeCheckbox").checked
+        }
+
+        $.ajax({
+            contentType: 'application/json; charset=utf-8',
+            type: 'GET',
+            url: '@Url.Action("Submit", "Account")',
+            data: signInRequest,
+            success: function (data) {
+                window.location = data.redirect;
+            }
+        });
+    }
+</script>

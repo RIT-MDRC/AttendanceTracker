@@ -1,0 +1,75 @@
+﻿@model MDRC.Web.ViewModels.GenerateEmailViewModel
+@{
+    ViewData["Title"] = "Edit Email Template";
+}
+
+<div>
+    <h1 class="display-6">Generate "@Model.TemplateName" Email</h1>
+    @using (Html.BeginForm("GenerateEmailFromTemplate", "Emails", FormMethod.Post))
+    {
+        @Html.HiddenFor(_ => _.EmailTemplateId)
+        <div class="row">
+            <div class="col-md-6">
+                @Html.LabelFor(_ => _.GivenName)
+                @Html.TextBoxFor(_ => _.GivenName, new { @class = "form-control" })
+                @Html.LabelFor(_ => _.FamilyName)
+                @Html.TextBoxFor(_ => _.FamilyName, new { @class = "form-control" })
+                @Html.LabelFor(_ => _.Title)
+                @Html.TextBoxFor(_ => _.Title, new { @class = "form-control" })
+                @Html.LabelFor(_ => _.Email)
+                @Html.TextBoxFor(_ => _.Email, new { @class = "form-control", @type = "email" })
+            </div>
+            <div class="col-md-6">
+                @Html.LabelFor(_ => _.RecipientName)
+                @Html.TextBoxFor(_ => _.RecipientName, new { @class = "form-control" })
+                @Html.LabelFor(_ => _.RecipientType)
+                @Html.DropDownListFor(_ => _.RecipientName, Model.RecipientTypeList, null, new { @class = "form-control" })
+                @Html.LabelFor(_ => _.DirectRecipientName)
+                @Html.TextBoxFor(_ => _.DirectRecipientName, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                @Html.LabelFor(_ => _.EventName)
+                @Html.TextBoxFor(_ => _.EventName, new { @class = "form-control" })
+            </div>
+            <div class="col-md-6">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2 ms-auto">
+                <button class="form-control rit" type="submit">Generate</button>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts
+    {
+    <script>
+        $(document).ready(function () {
+
+            // $("#GenerateEmailForm").submit(function (e) {
+
+            //     e.preventDefault(); // avoid to execute the actual submit of the form.
+
+            //     //if (!validateForm())
+            //     //    return;
+
+            //     var form = $(this);
+
+            //     $.ajax({
+            //         type: "POST",
+            //         url: '@Url.Action("GenerateEmailFromTemplate", "Emails")',
+            //         data: form.serialize(), // serializes the form's elements.
+            //         success: function (data) {
+            //             window.location = data.redirect;
+            //         },
+            //         error: function () {
+            //             alert('Error occured');
+            //         }
+            //     });
+            // });
+        });
+    </script>
+}

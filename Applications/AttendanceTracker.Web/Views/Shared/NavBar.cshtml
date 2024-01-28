@@ -1,0 +1,70 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+@using System.Security.Claims
+@using System.Reflection;
+
+<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <div class="container-fluid">
+        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MDRC</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+            <ul class="navbar-nav flex-grow-1">
+                <li class="nav-item">
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                </li>
+                @if (HttpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-dark" href="#" id="eventManagementMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Event Management
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="eventManagementMenuLink">
+                            <li><a class="dropdown-item text-dark" asp-area="" asp-controller="Event" asp-action="Index">View All Events</a></li>
+                            <li><a class="dropdown-item text-dark" asp-area="" asp-controller="Event" asp-action="CreateNewEvent">New Event</a></li>
+                        </ul>
+                    </li>
+                }
+                @if (HttpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-dark" href="#" id="attendanceMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Attendance
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="attendanceMenuLink">
+                            <li><a class="dropdown-item text-dark" asp-area="" asp-controller="Swipe" asp-action="Index" target="_blank">Launch Swipe Window</a></li>
+                            <li><a class="dropdown-item text-dark" asp-area="" asp-controller="Swipe" asp-action="ManualEntry">Enter Past Attendance</a></li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Swipe" asp-action="Index" target="_blank">Launch Swipe Window</a>
+                    </li>
+                }
+                @if (HttpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Emails" asp-action="Index">Generate Emails</a>
+                    </li>
+                }
+                @if (HttpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="SignedOut">Sign Out</a>
+                    </li>
+                } else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Sign In</a>
+                    </li>
+                }
+            </ul>
+            <environment include="Development">
+                <p><b>DEVELOPMENT</b></p>
+            </environment>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,52 @@
+﻿@model MDRC.Web.ViewModels.SwipeViewModel
+@{
+    ViewData["Title"] = "Swipe";
+    Layout = "_NoNavLayout";
+}
+
+<div>
+    <h1 class="display-6">Welcome to MDRC!</h1>
+    @if(Model.EventId.HasValue)
+    {
+        <p>Now hosting: @Model.EventName</p>
+    } else
+    {
+        <p>There is no scheduled meeting happening right now. If you think this is an error, please talk to your team lead or an E-Board member.</p>
+    }
+
+    @if(!string.IsNullOrEmpty(Model.WarningMessage))
+    {
+        <div class="alert">
+            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+            <strong>Warning!</strong> @Model.WarningMessage
+        </div>
+    }
+
+    @using (Html.BeginForm("CreateSwipeRecord", "Swipe", FormMethod.Post, new { @id = "swipeForm" }))
+    {
+        @Html.HiddenFor(_ => _.EventId)
+        @Html.HiddenFor(_ => _.EventName)
+        @Html.LabelFor(_ => _.SwipeReading)
+        @Html.EditorFor(_ => _.SwipeReading, new { htmlAttributes = new { @disabled = "disabled", @class="form-control", @type = "password" } })
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#SwipeReading").trigger("focus");
+        });
+    </script>
+
+    @if (Model.EventId.HasValue)
+    {
+        <script>
+            $(document).ready(function () {
+                $("#SwipeReading").removeAttr("disabled");
+                $("#SwipeReading").trigger("focus");
+            });
+        </script>
+    }
+}
+

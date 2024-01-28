@@ -1,0 +1,76 @@
+﻿@model MDRC.Web.ViewModels.CreateNewMemberViewModel
+@{
+    ViewData["Title"] = "Swipe";
+    Layout = "_NoNavLayout";
+}
+
+<div>
+    <h1 class="display-6">Welcome to MDRC!</h1>
+
+    @if (string.IsNullOrEmpty(Model.GivenName))
+    {
+        using (Html.BeginForm("CreateNewMember", "Swipe", FormMethod.Post, new { htmlAttributes = new { @id = "newMemberForm" } }))
+        {
+            @Html.HiddenFor(_ => _.EventId)
+            @Html.HiddenFor(_ => _.UniversityId)
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    @Html.LabelFor(_ => _.GivenName)
+                    @Html.TextBoxFor(_ => _.GivenName, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    @Html.LabelFor(_ => _.FamilyName)
+                    @Html.TextBoxFor(_ => _.FamilyName, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    @Html.LabelFor(_ => _.Email)
+                    @Html.TextBoxFor(_ => _.Email, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    @Html.LabelFor(_ => _.IsNewMember)
+                    @Html.DropDownListFor(_ => _.IsNewMember, new []
+                    {
+                        new SelectListItem { Text = "Yes", Value = bool.TrueString },
+                        new SelectListItem { Text = "No", Value = bool.FalseString }
+                    }, null, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <button class="form-control rit" type="submit">Submit</button>
+                </div>
+            </div>
+        }
+    } 
+    else
+    {
+        <p>@Model.GivenName, you are all set. Enjoy the meeting!</p>
+        <p style="display:inline">This page will refresh in </p>
+
+        <div id="count" style="display:inline">
+            <p style="display:inline">3</p>
+        </div>
+
+        <p style="display:inline"> seconds...</p>
+
+
+        <p>If this page does not refresh automatically, click here: <a href='@Url.Action("Index", "Swipe")'>Swipe</a></p>
+        <script>
+            setInterval(function () {
+                var countElement = $('#count > p');
+                var count = countElement.text() * 1 - 1;
+                countElement.text(((count < 0) ? 0 : count));
+                if (count == 0) {
+                    window.location = '@Url.Action("Index", "Swipe")';
+                }
+            }, 1000);
+        </script>
+    }
+
+</div>
